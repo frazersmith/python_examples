@@ -1,0 +1,7 @@
+*.pyc
+*.py~
+nbproject/private
+.idea
+videotest_assets
+.directory
+local.db

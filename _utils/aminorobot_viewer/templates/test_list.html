@@ -1,0 +1,22 @@
+
+{% extends "layout.html" %}
+
+{% block head %}
+
+    {% block title %}{% endblock %}
+    {{ super() }}
+
+{% endblock %}
+
+{% block content%}
+    <a href="/">Go Back</a>
+    <div class="panel panel-success">
+        <div class="panel-heading">
+            <h4 class="">Aminorobot test list {{ robot_ip }}</h3>
+        </div>
+        <div class="panel-body">
+            Some information!!
+        </div>
+    </div>
+
+{% endblock %}

@@ -1,0 +1,7 @@
+#siteinfo Version 2017-07-26
+UK;gitolite@git.aminocom.com:/sqa/videotest_assets.git
+PB;git@bitbucket.org:frazersmith/videotest_assets.git
+HK;gitolite@git.aminocom.com:/sqa/videotest_assets.git
+TEST;192.168.174.132:/var/nfs/aminorobot_video_assets {videoassetdir} nfs auto,nofail,noatime,nolock,intr,tcp,actimeo=1800 0 0
+FL;https://sorinpatrasoiu@bitbucket.org/frazersmith/videotest_assets.git
+

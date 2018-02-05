@@ -1,0 +1,21 @@
+<table width="80%" style="margin: 0 auto;" class="table table-striped table-hover">
+    <thead>
+        <tr>
+            <th>Robot IP</th>
+            <th>Host Name</th>
+            <th>Running Tasks</th>
+            <th>View More information</th>
+        </tr>
+    </thead>
+
+    <tbody>
+        {% for robot in robots %}
+            <tr>
+                <td> {{ robot[0] }}</td>
+                <td> {{ robot[1] }}</td>
+                <td> {{ robot[2] }}</td>
+                <td><a href="/show_robot?robot_ip={{ robot[0] }}">View Robot</a></td>
+            </tr>
+        {% endfor %}
+    </tbody>
+</table>

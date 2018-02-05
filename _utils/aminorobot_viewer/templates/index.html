@@ -1,0 +1,53 @@
+
+{% extends "layout.html" %}
+
+{% block head %}
+
+    <title> aminorobot viewer - Home </title>
+
+    {{ super() }}
+    <link rel="stylesheet" href="/static/loader.css">
+
+
+{% endblock %}
+
+{% block content%}
+
+<script type="text/javascript">
+
+$(document).ready(function() {
+    get_robot_data();
+});
+
+var get_robot_data = function(){
+
+    $.ajax({
+        url: '/robot_list_html',
+        type: 'GET',
+
+        success: function(result) {
+            // Remove the loading spinner container, we don't need it any more
+            (elem = document.getElementById('loading_container')).parentNode.removeChild(elem);
+
+            $('#robot_list_table').html(result);
+
+        }, error: function() {
+            $('#robot_list_table').html('An Error occured, check the log file');
+        }
+    });
+
+}
+
+</script>
+    <div class="well">
+        <h3> Aminorobot List </h3>
+    </div>
+
+    <div id="loading_container">
+        <div id="loader"></div>
+        <h3 style="text-align: center;">Listing Robots</h3>
+    </div>
+
+    <div id="robot_list_table"></div>
+
+{% endblock %}

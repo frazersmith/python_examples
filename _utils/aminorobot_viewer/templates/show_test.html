@@ -1,0 +1,209 @@
+
+{% extends "layout.html" %}
+
+{% block head %}
+
+    <title> aminorobot viewer - Show Test</title>
+    {{ super() }}
+
+<script type="text/javascript">
+
+    var robot_ip = "{{ test_info.robot_ip }}";
+    var test_pid = "{{ test_info.test_pid }}";
+
+    $(document).ready(function() {
+        console.log('document.ready: fired ' + robot_ip + ' : ' + test_pid)
+
+        var base_req_args = 'robot_ip=' + robot_ip;
+        base_req_args += '&test_pid=' + test_pid;
+
+        // Get the robotrun information
+        $.getJSON('/get_log_from_robot?' + base_req_args + '&log_type=0', function(){
+
+        }).done(function(data) {
+            $('#div_robotrun_log').html(JSON.stringify(data.data).replace('"', ''));
+
+        }).fail(function() {
+            $('#div_robotrun_log').html('<h3> Failed to fetch robotrun.log information </h3>');
+        });
+
+        // Get the robotdebug information
+        $.getJSON('/get_log_from_robot?' + base_req_args + '&log_type=1&length=250', function(){
+
+        }).done(function(data) {
+            $('#div_robotdebug_log').html(JSON.stringify(data.data).replace('"', ''));
+
+            console.log(JSON.stringify(data.data));
+
+            var robotdebug_div = document.getElementById('div_robotdebug_log');
+            robotdebug_div.scrollTop = robotdebug_div.scrollHeight;
+
+        }).fail(function() {
+            $('#div_robotdebug_log').html('<h3> Failed to fetch robotdebug.log information </h3>');
+        });
+
+    });
+</script>
+
+<style type="text/css">
+
+    .log_container {
+        height: 275px;
+        overflow: scroll;
+    }
+
+</style>
+
+{% endblock %}
+
+{% block content %}
+
+    <a href="javascript:history.back()">Go Back</a>
+
+    {% if test_info.test_found == False %}
+
+        <div class="panel panel-danger">
+            <div class="panel-heading">
+                <h4>
+                    TEST PID NOT FOUND
+                </h4>
+            </div>
+
+            <div class="panel-body">
+                test_pid:                <b> {{ test_info.test_pid }} </b> <br>
+                not found on robot host: <b> {{ test_info.robot_ip }} </b>
+            </div>
+        </div>
+
+    {% else %}
+
+        <div class="panel panel-success">
+            <div class="panel-heading">
+                <h4>
+                    Test Information
+                </h4>
+            </div>
+
+            <div class="panel-body">
+                <b> Robot IP: </b> {{ test_info.robot_ip }} <br>
+                <b> Test PID: </b> {{ test_info.test_pid }}
+
+                <h4> sqarun.py parameters: </h4>
+
+                <div class="well well-sm">
+                    <b> test / suite: </b> {{ test_info.test_parameter }}
+                </div>
+
+                <div class="well well-sm">
+                    <b> Variables: </b>
+                    <table border="0" style="width: 25%">
+                        <tbody>
+                            <tr>
+                                <br><td colspan="2"></td></tr>
+                            </tr>
+
+                            {% for variable in test_info.test_variables %}
+                                <!--
+                                    split the variable name from the variable value
+                                    for display in a table format on the web page
+                                -->
+                                {% set split_var = variable.split(':') %}
+                                    <tr>
+                                        <td>
+                                            {{ split_var[0] }}
+                                        </td>
+                                        <td>
+                                            <!--
+                                                join the variable value with a colon seperator,
+                                                this allows for the variable to be a url, for
+                                                channel change or upgrade/ downgrade tests
+                                            -->
+                                            {{ ':'.join(split_var[1:]) }}
+                                        </td>
+                                    </tr>
+
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+
+                <div class="well well-sm">
+                    <b> output dir: </b> {{ test_info.output_dir }}<br>
+                    <b> output url: </b> <a href="http://{{ test_info.robot_ip }}/{{ test_info.output_url }}" target="_blank">http://{{ test_info.robot_ip }}/{{ test_info.output_url }}</a>
+
+                </div>
+
+                <div class="well well-sm">
+                    {% if test_info.unit_under_test is not none %}
+
+                        <h4> UUT Information: </h4>
+
+                        <table style="width: 95%; float: center;" class="table table-striped table-hover">
+                            <tbody>
+                                <tr class="success">
+                                    <td> <b> Shortname: </b> </td>
+                                    <td>{{ test_info['unit_under_test']['shortname'] }}</td>
+
+                                    <td> <b> Serial Number: </b> </td>
+                                    <td>{{ test_info['unit_under_test']['serialnumber'] }}</td>
+                                </tr>
+
+                                <tr>
+                                    <td> <b> Hardware Ident: </b> </td>
+                                    <td>{{ test_info['unit_under_test']['hwident']}} </td>
+
+                                    <td> <b> MAC Address </b> </td>
+                                    <td>{{ test_info['unit_under_test']['iface_mac'] }}</td>
+                                </tr>
+
+                                <tr class="success">
+                                    <td> <b> Hardware Family </b> </td>
+                                    <td>{{ test_info['unit_under_test']['hwfamily'] }}</td>
+
+                                    <td> <b> Interface Name: </b> </td>
+                                    <td>{{ test_info['unit_under_test']['iface_name'] }}</td>
+                                </tr>
+
+                                <tr>
+                                    <td> <b> Debug Port: </b> </td>
+                                    <td>{{ test_info['unit_under_test']['debugport'] }}</td>
+
+                                    <td> <b> IP Address: </b> </td>
+                                    <td>{{ test_info['unit_under_test']['iface_addr'] }}</td>
+                                </tr>
+
+                            </tbody>
+                        </table>
+
+                    {% else %}
+
+                        <h3> UUT information is not available </h3>
+
+                    {% endif %}
+                </div>
+
+                <h4> robotrun.log: </h4>
+                <div class="well well-sm log_container" id="div_robotrun_log"></div>
+
+                <h4> robotdebug.log: </h4>
+                <div class="well well-sm log_container" id="div_robotdebug_log"></div>
+
+                <div style="width: 100%; height: 450px">
+                    <div style="float: left; width: 50%; height: 100%" id="div_memory_log" class="well well-sm">
+                        <h4> Free Memory Graph: </h4>
+                        <object type="image/svg+xml" data="/graph/memory_graph?robot_ip={{ test_info.robot_ip }}&test_pid={{ test_info.test_pid }}"> </object>
+                    </div>
+
+                    <div style="float:right; width: 50%; height: 100%" id="div_cpu_log" class="well well-sm">
+                        <h4> Free CPU Graph: </h4>
+                        <object type="image/svg+xml" data="/graph/cpu_graph?robot_ip={{ test_info.robot_ip }}&test_pid={{ test_info.test_pid }}"> </object>
+                    </div>
+                </div>
+
+                <div style="clear: both;"></div>
+
+            </div>
+        </div>
+    {% endif %}
+
+{% endblock %}

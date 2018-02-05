@@ -1,0 +1,144 @@
+
+{% extends "layout.html" %}
+
+{% block head %}
+
+    <title> aminorobot viewer - Stream Monitor </title>
+    {{ super() }}
+
+{% endblock %}
+
+{% block content%}
+<style type="text/css">
+
+.popover-content {
+    /* This allows the stream url to be wrapped when longer than
+     * the popover element
+     */
+    word-wrap: break-word;
+}
+
+</style>
+
+<script type="text/javascript">
+
+$(document).ready(function(){
+
+    $('[data-toggle="popover"]').click(function(e) {
+        /* Needed to prevent the 'a' element navigating to the top
+         * of the page on click when the popover is triggered
+         */
+        e.preventDefault();
+    });
+
+    $('[data-toggle="popover"]').popover();
+
+    $('body').on('click', function (e) {
+        /* Allow clicking anywhere to close the popover element when
+         * it is opened.
+         */
+        $('[data-toggle="popover"]').each(function () {
+            if (!$(this).is(e.target) && $(this).has(e.target).length === 0 && $('.popover').has(e.target).length === 0) {
+                $(this).popover('hide');
+            }
+        });
+    });
+});
+
+</script>
+
+    <div class="well">
+        <h3> Stream Monitor </h3>
+        <ul>
+            <li>Click the Stream name field to see the URL for that stream in a pop over</li>
+            <li>
+                Click the More Information field to see more detailed information on the
+                stream under test and a log of the tests on that stream
+            </li>
+            <li>
+                the Down Since time gives the oldest test time where the stream was down,
+                where it has been consitently down. See more information for a log of when
+                the stream was running.
+            </li>
+        </ul>
+    </div>
+
+    <table style="margin: 0 auto;" class="table table-striped table-hover">
+        <thead>
+            <tr>
+                <th> Stream Name         </th>
+                <th> Stream Type         </th>
+                <th> Stream Test Enabled </th>
+                <th> Stream Status       </th>
+                <th> Last Tested         </th>
+                <th> Down Since          </th>
+                <th> More Information    </th>
+            </tr>
+        </thead>
+
+        <tbody>
+
+            {% for stream in stream_list %}
+
+                {% if stream['stream_enabled'] == 0 %}
+                    <tr class="warning">
+                {% else %}
+
+                    {% if stream['stream_status'] == 'Running' %}
+                        <tr class="success">
+                    {% else %}
+                        <tr class="danger">
+                    {% endif %}
+
+                {% endif %}
+
+                        <td>
+                            <a href="#" data-toggle="popover" title="Stream URL:" data-content="{{ stream['stream_url'] }}">
+                                {{ stream['stream_name'] }}
+                            </a>
+                        </td>
+
+                        <td>
+                            {{ stream['stream_type'] }}
+                        </td>
+
+                        <td>
+                            {% if stream['stream_enabled'] == 1 %}
+                               Yes
+                            {% else %}
+                               No
+                            {% endif %}
+                        </td>
+
+                        <td>
+                            {% if stream['stream_status'] == 'Running' %}
+                                <p class="text-success"> Running </p>
+                            {% else %}
+                                <p class="text-danger"> Down </p>
+                            {% endif %}
+                        </td>
+
+                        <td>
+                            {{ stream['stream_test_time'] }}
+                        </td>
+
+                        <td>
+                            {% if stream['time_down_since'] != None %}
+                                {{ stream['time_down_since'] }}
+                            {% else %}
+                                N/A
+                            {% endif %}
+                        </td>
+
+                        <td>
+                            <!-- TODO add link to stream specific pages -->
+                        </td>
+
+                    </tr>
+
+            {% endfor %}
+        </tbody>
+
+    </table>
+
+{% endblock %}
